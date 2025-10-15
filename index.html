@@ -335,6 +335,7 @@
       border-radius: 6px;
       margin-top: 1rem;
       display: none;
+      flex-wrap: wrap;
     }
     .message.success {
       display: flex;
@@ -349,6 +350,28 @@
     .message svg {
       width: 20px;
       height: 20px;
+    }
+    .download-error-button {
+      background: linear-gradient(90deg, #991b1b, #ef4444);
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+      margin-left: 0.5rem;
+    }
+    .download-error-button:hover {
+      background: linear-gradient(90deg, #7f1d1d, #dc2626);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .download-error-button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      box-shadow: none;
     }
 
     /* Popup Overlay Styles */
@@ -554,7 +577,7 @@
       const UPLOAD_API_URL = 'https://apis-stage.thesleepcompany.in/edd/upload/holidays';
       const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJhZG1pbiJdfQ.MFelpPBRMF7r88jdJZxGK0kvvhwX0f7xdw4yNxIRhGc';
 
-      // Download Function
+      // Download Sample File via API
       async function downloadSample(button) {
         if (button) {
           button.disabled = true;
@@ -597,6 +620,19 @@
             button.textContent = originalText;
           }
         }
+      }
+
+      // Download Error File
+      function downloadErrorFile(file) {
+        if (!file) return;
+        const url = window.URL.createObjectURL(file);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
       }
 
       // Popup Close Event
@@ -705,6 +741,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     <span id="message-text"></span>
+                    <button id="download-error-file" class="download-error-button" style="display: none;">Download Error File</button>
                   </div>
                 </form>
                 <div class="download-info">
@@ -794,6 +831,7 @@
         const successIcon = document.querySelector('.success-icon');
         const errorIcon = document.querySelector('.error-icon');
         const downloadLink = document.getElementById('download-sample-link');
+        const downloadErrorButton = document.getElementById('download-error-file');
 
         if (!form || !fileInput) return; // Exit if elements don't exist
 
@@ -892,6 +930,7 @@
               message.className = 'message error';
               successIcon.style.display = 'none';
               errorIcon.style.display = 'inline';
+              downloadErrorButton.style.display = 'none';
               message.style.display = 'flex';
               return;
             }
@@ -908,6 +947,8 @@
               message.className = 'message error';
               successIcon.style.display = 'none';
               errorIcon.style.display = 'inline';
+              downloadErrorButton.style.display = 'inline';
+              downloadErrorButton.onclick = () => downloadErrorFile(file);
               message.style.display = 'flex';
               return;
             }
@@ -917,6 +958,8 @@
               message.className = 'message error';
               successIcon.style.display = 'none';
               errorIcon.style.display = 'inline';
+              downloadErrorButton.style.display = 'inline';
+              downloadErrorButton.onclick = () => downloadErrorFile(file);
               message.style.display = 'flex';
               return;
             }
@@ -936,6 +979,7 @@
             messageText.textContent = '';
             successIcon.style.display = 'none';
             errorIcon.style.display = 'none';
+            downloadErrorButton.style.display = 'none';
             message.style.display = 'none';
 
             // Simulate progress for user feedback
@@ -964,7 +1008,7 @@
               progress.style.width = '100%';
 
               if (!response.ok) {
-                let errorMessage = `HTTP error! status: ${response.status}`;
+                let errorMessage = 'Failed to upload file. Please check your connection and try again.';
                 try {
                   const errorData = await response.json();
                   errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
@@ -988,10 +1032,13 @@
               });
 
               progressBar.classList.remove('active');
-              messageText.textContent = result.message || 'Holidays uploaded successfully!';
+              const successMessage = result.message || 'Holidays uploaded successfully!';
+              const previousVersion = result.previousVersion ? ` Previous Version: ${result.previousVersion}` : '';
+              messageText.textContent = `${successMessage}${previousVersion}`;
               message.className = 'message success';
               successIcon.style.display = 'inline';
               errorIcon.style.display = 'none';
+              downloadErrorButton.style.display = 'none';
               message.style.display = 'flex';
               form.reset();
               dragDropArea.querySelector('p').textContent = 'Drag and drop your CSV or Excel file here or click to select';
@@ -1000,12 +1047,12 @@
               console.error('Error uploading file:', error);
               clearInterval(progressInterval);
               progressBar.classList.remove('active');
-              messageText.textContent = error.message.includes('HTTP error! status: 400')
-                ? 'Failed to upload the file. Please download a fresh sample and try again without modifying it.'
-                : error.message || 'Failed to upload file. Please check your connection and try again.';
+              messageText.textContent = error.message;
               message.className = 'message error';
               successIcon.style.display = 'none';
               errorIcon.style.display = 'inline';
+              downloadErrorButton.style.display = 'inline';
+              downloadErrorButton.onclick = () => downloadErrorFile(file);
               message.style.display = 'flex';
             } finally {
               uploadButton.disabled = false;
