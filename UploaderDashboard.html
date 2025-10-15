@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TSC EDD BulkUploader - Professional tool for variant, holiday, and cutoff uploads.">
+  <title>TSC BulkUploader - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1f2a44;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      color: #ffffff;
+      padding: 1rem 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header-left img {
+      height: 48px;
+      width: auto;
+      border-radius: 4px;
+      filter: invert(1);
+    }
+    .header-left h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      background: white;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 0.05em;
+    }
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .mobile-toggle svg {
+      width: 28px;
+      height: 28px;
+      stroke: #ffffff;
+    }
+    .logout-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: white;
+      color: black;
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    .logout-button:hover {
+      background-color: #b91c1c;
+      transform: translateY(-1px);
+    }
+    .logout-button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+    }
+    .logout-button svg {
+      width: 20px;
+      height: 20px;
+      stroke: #000000;
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 260px;
+      background-color: #fafafa;
+      border-right: 1px solid #e2e8f0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      transition: transform 0.3s ease-in-out;
+    }
+    aside.hidden {
+      transform: translateX(-100%);
+    }
+    .sidebar-nav {
+      padding: 2rem 1.25rem;
+    }
+    .sidebar-nav ul {
+      list-style: none;
+    }
+    .sidebar-nav li {
+      margin-bottom: 0.5rem;
+    }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #2d3748;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .sidebar-nav a:hover {
+      background-color: #edf2f7;
+      color: #1e40af;
+      transform: translateX(4px);
+    }
+    .sidebar-nav a.active-section {
+      background-color: #dbeafe;
+      color: #1e3a8a;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px rgba(30, 58, 138, 0.1);
+    }
+    .sidebar-nav a.active-section svg {
+      stroke: #1e3a8a;
+    }
+    .sidebar-nav svg {
+      width: 22px;
+      height: 22px;
+      stroke: #4b5563;
+      flex-shrink: 0;
+      transition: stroke 0.3s ease;
+    }
+    .sidebar-nav a.active-section::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background-color: #1e3a8a;
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Overlay for Mobile Sidebar */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 40;
+      display: none;
+    }
+    .overlay.show {
+      display: block;
+    }
+
+    /* Main Content */
+    main#content-area {
+      flex: 1;
+      padding: 2rem 1.5rem;
+      background-color: #f8fafc;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      max-height: calc(100vh - 72px);
+    }
+
+    /* Holiday Upload Styles */
+    .holiday-upload-container {
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: none;
+      max-height: 100%;
+      margin: 0;
+      min-height: 0;
+    }
+    .holiday-upload-container h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2a44;
+      letter-spacing: -0.025em;
+    }
+    .holiday-upload-note {
+      font-size: 0.875rem;
+      color: #4b5563;
+      font-style: normal;
+      line-height: 1.5;
+    }
+    .download-info {
+      text-align: center;
+      padding: 1rem 0;
+      border-top: 1px solid #e5e7eb;
+      margin-top: auto;
+    }
+    .download-info p {
+      font-size: 0.875rem;
+      color: #4b5563;
+      margin: 0;
+    }
+    .download-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .download-link:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .form-group label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+    }
+    .drag-drop-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      background-color: #f9fafb;
+      transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 150px;
+      max-height: 200px;
+    }
+    .drag-drop-area.drag-over {
+      border-color: #2563eb;
+      background-color: #eff6ff;
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+    }
+    .drag-drop-area p {
+      font-size: 0.875rem;
+      color: #4b5563;
+      margin-bottom: 0.5rem;
+    }
+    .drag-drop-area input[type="file"] {
+      display: none;
+    }
+    .upload-button {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+      margin-top: 1rem;
+      align-self: center;
+    }
+    .upload-button:hover {
+      background: linear-gradient(90deg, #1e40af, #2563eb);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .upload-button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .progress-bar {
+      display: none;
+      width: 100%;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    .progress-bar.active {
+      display: block;
+    }
+    .progress-bar div {
+      height: 100%;
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      width: 0;
+      transition: width 0.3s ease;
+    }
+    .message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+    }
+    .message.success {
+      display: flex;
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    .message.error {
+      display: flex;
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    .message svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Popup Overlay Styles */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-content {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+    .close-button {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      color: #4b5563;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .close-button:hover {
+      color: #1f2a44;
+    }
+    .modal-note {
+      font-size: 0.875rem;
+      color: #374151;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .download-button {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    }
+    .download-button:hover {
+      background: linear-gradient(90deg, #1e40af, #2563eb);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .download-button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1023px) {
+      aside {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+      }
+      aside.show {
+        transform: translateX(0);
+      }
+      .mobile-toggle {
+        display: block;
+      }
+      .header-left h1 {
+        font-size: 1.25rem;
+      }
+      main#content-area {
+        padding: 1rem 1rem;
+      }
+      .holiday-upload-container {
+        padding: 1rem;
+      }
+      .drag-drop-area {
+        min-height: 120px;
+        max-height: 150px;
+        padding: 1rem;
+      }
+    }
+    @media (min-width: 1024px) {
+      aside {
+        transform: translateX(0);
+      }
+      .mobile-toggle {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="header-left">
+        <button id="mobile-menu-toggle" class="mobile-toggle" aria-label="Toggle sidebar">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <img src="creatives/Tsc logo.png" alt="TSC EDD BulkUploader Logo">
+        <h1>TSC BulkUploader</h1>
+      </div>
+      <button id="logout-button" class="logout-button">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="main-container">
+    <!-- Sidebar -->
+    <aside id="sidebar" aria-label="Sidebar">
+      <div class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="#" data-section="variant" class="active-section" aria-current="page">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              Variant Upload
+            </a>
+          </li>
+          <li>
+            <a href="#" data-section="holiday">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Holiday Upload
+            </a>
+          </li>
+          <li>
+            <a href="#" data-section="cutoff">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Cutoff
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-sidebar-overlay" class="overlay"></div>
+
+    <!-- Main Content -->
+    <main id="content-area">
+      <!-- Default Variant Content -->
+      <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
+        <h2>Variant Upload</h2>
+        <p>Variant upload functionality will be implemented here.</p>
+      </div>
+      <!-- Holiday Popup Overlay -->
+      <div id="holiday-popup" class="modal-overlay">
+        <div class="modal-content">
+          <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
+          <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
+          <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.getElementById('mobile-menu-toggle');
+      const overlay = document.getElementById('mobile-sidebar-overlay');
+      const contentArea = document.getElementById('content-area');
+      const logoutButton = document.getElementById('logout-button');
+      const links = document.querySelectorAll('aside a[data-section]');
+      const holidayPopup = document.getElementById('holiday-popup');
+      const closePopup = document.getElementById('close-popup');
+      const downloadPopupButton = document.getElementById('download-sample-popup');
+      let isSidebarOpen = false;
+
+      // API Configuration
+      const DOWNLOAD_API_URL = 'https://apis-stage.thesleepcompany.in/edd/upload/holidays/sample';
+      const UPLOAD_API_URL = 'https://apis-stage.thesleepcompany.in/edd/upload/holidays';
+      const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJhZG1pbiJdfQ.MFelpPBRMF7r88jdJZxGK0kvvhwX0f7xdw4yNxIRhGc';
+
+      // Download Function
+      async function downloadSample(button) {
+        if (button) {
+          button.disabled = true;
+          const originalText = button.textContent;
+          button.textContent = 'Downloading...';
+
+          try {
+            const response = await fetch(DOWNLOAD_API_URL, {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + TOKEN,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const blob = await response.blob();
+            
+            if (!blob || blob.size === 0) {
+              throw new Error('Empty response from server');
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Holiday.zip';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+          } catch (error) {
+            console.error('Error downloading sample ZIP file:', error);
+            alert('Failed to download sample ZIP file. Please check your connection and try again.');
+          } finally {
+            button.disabled = false;
+            button.textContent = originalText;
+          }
+        }
+      }
+
+      // Popup Close Event
+      if (closePopup) {
+        closePopup.addEventListener('click', function() {
+          holidayPopup.classList.remove('show');
+        });
+      }
+
+      // Popup Download Event
+      if (downloadPopupButton) {
+        downloadPopupButton.addEventListener('click', function() {
+          downloadSample(downloadPopupButton);
+        });
+      }
+
+      // Mobile Sidebar Toggle
+      mobileToggle.addEventListener('click', function() {
+        isSidebarOpen = !isSidebarOpen;
+        if (isSidebarOpen) {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('show');
+          overlay.classList.add('show');
+        } else {
+          sidebar.classList.remove('show');
+          sidebar.classList.add('hidden');
+          overlay.classList.remove('show');
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('show');
+        sidebar.classList.add('hidden');
+        overlay.classList.remove('show');
+        isSidebarOpen = false;
+      });
+
+      // Sidebar Navigation
+      links.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const section = link.getAttribute('data-section');
+
+          // Remove active from all
+          links.forEach(function(l) {
+            l.classList.remove('active-section');
+            l.setAttribute('aria-current', 'false');
+          });
+
+          // Add active to current
+          link.classList.add('active-section');
+          link.setAttribute('aria-current', 'page');
+
+          // Update content based on section
+          if (section === 'variant') {
+            contentArea.innerHTML = `
+              <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
+                <h2>Variant Upload</h2>
+                <p>Variant upload functionality will be implemented here.</p>
+              </div>
+              <div id="holiday-popup" class="modal-overlay">
+                <div class="modal-content">
+                  <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
+                  <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
+                  <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
+                </div>
+              </div>
+            `;
+            // Reinitialize popup event listeners
+            setTimeout(() => {
+              const newClosePopup = document.getElementById('close-popup');
+              const newDownloadPopupButton = document.getElementById('download-sample-popup');
+              if (newClosePopup) {
+                newClosePopup.addEventListener('click', function() {
+                  document.getElementById('holiday-popup').classList.remove('show');
+                });
+              }
+              if (newDownloadPopupButton) {
+                newDownloadPopupButton.addEventListener('click', function() {
+                  downloadSample(newDownloadPopupButton);
+                });
+              }
+            }, 0);
+          } else if (section === 'holiday') {
+            contentArea.innerHTML = `
+              <div class="holiday-upload-container">
+                <h2>Holiday Upload</h2>
+                <p class="holiday-upload-note">Upload the holiday sheet in CSV or Excel (.csv, .xls, or .xlsx) format.</p>
+                <form class="holiday-upload-form" id="holiday-upload-form">
+                  <div class="form-group">
+                    <label>Upload a Holidays Sheet</label>
+                    <div class="drag-drop-area" id="drag-drop-area">
+                      <p>Drag and drop your CSV or Excel file here or click to select</p>
+                      <input type="file" id="file-input" accept=".csv,.xls,.xlsx" required>
+                    </div>
+                  </div>
+                  <button type="submit" class="upload-button" id="upload-button">Upload Holidays</button>
+                  <div class="progress-bar" id="progress-bar">
+                    <div id="progress"></div>
+                  </div>
+                  <div class="message" id="message">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="success-icon" style="display: none;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="error-icon" style="display: none;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span id="message-text"></span>
+                  </div>
+                </form>
+                <div class="download-info">
+                  <p>Download the sample <a href="#" class="download-link" id="download-sample-link">Holiday.zip</a> file</p>
+                </div>
+              </div>
+              <div id="holiday-popup" class="modal-overlay">
+                <div class="modal-content">
+                  <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
+                  <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
+                  <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
+                </div>
+              </div>
+            `;
+            // Initialize holiday functionality and popup event listeners
+            setTimeout(() => {
+              initializeHolidayUpload();
+              const newClosePopup = document.getElementById('close-popup');
+              const newDownloadPopupButton = document.getElementById('download-sample-popup');
+              if (newClosePopup) {
+                newClosePopup.addEventListener('click', function() {
+                  document.getElementById('holiday-popup').classList.remove('show');
+                });
+              }
+              if (newDownloadPopupButton) {
+                newDownloadPopupButton.addEventListener('click', function() {
+                  downloadSample(newDownloadPopupButton);
+                });
+              }
+              document.getElementById('holiday-popup').classList.add('show');
+            }, 0);
+          } else if (section === 'cutoff') {
+            contentArea.innerHTML = `
+              <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
+                <h2>Cutoff Upload</h2>
+                <p>Cutoff upload functionality will be implemented here.</p>
+              </div>
+              <div id="holiday-popup" class="modal-overlay">
+                <div class="modal-content">
+                  <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
+                  <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
+                  <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
+                </div>
+              </div>
+            `;
+            // Reinitialize popup event listeners
+            setTimeout(() => {
+              const newClosePopup = document.getElementById('close-popup');
+              const newDownloadPopupButton = document.getElementById('download-sample-popup');
+              if (newClosePopup) {
+                newClosePopup.addEventListener('click', function() {
+                  document.getElementById('holiday-popup').classList.remove('show');
+                });
+              }
+              if (newDownloadPopupButton) {
+                newDownloadPopupButton.addEventListener('click', function() {
+                  downloadSample(newDownloadPopupButton);
+                });
+              }
+            }, 0);
+          }
+
+          // Close mobile sidebar if open
+          if (isSidebarOpen) {
+            sidebar.classList.remove('show');
+            sidebar.classList.add('hidden');
+            overlay.classList.remove('show');
+            isSidebarOpen = false;
+          }
+        });
+      });
+
+      // Logout Button
+      logoutButton.addEventListener('click', function() {
+        alert('Logging out... (Add your auth logout logic here)');
+      });
+
+      function initializeHolidayUpload() {
+        const form = document.getElementById('holiday-upload-form');
+        const fileInput = document.getElementById('file-input');
+        const dragDropArea = document.getElementById('drag-drop-area');
+        const uploadButton = document.getElementById('upload-button');
+        const progressBar = document.getElementById('progress-bar');
+        const progress = document.getElementById('progress');
+        const message = document.getElementById('message');
+        const messageText = document.getElementById('message-text');
+        const successIcon = document.querySelector('.success-icon');
+        const errorIcon = document.querySelector('.error-icon');
+        const downloadLink = document.getElementById('download-sample-link');
+
+        if (!form || !fileInput) return; // Exit if elements don't exist
+
+        // Download Sample File via API
+        if (downloadLink) {
+          downloadLink.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            downloadLink.style.pointerEvents = 'none';
+            downloadLink.textContent = 'Downloading...';
+            
+            try {
+              const response = await fetch(DOWNLOAD_API_URL, {
+                method: 'GET',
+                headers: {
+                  'Authorization': 'Bearer ' + TOKEN,
+                  'Content-Type': 'application/json'
+                }
+              });
+
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const blob = await response.blob();
+              
+              if (!blob || blob.size === 0) {
+                throw new Error('Empty response from server');
+              }
+
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = 'Holiday.zip';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+
+              downloadLink.style.pointerEvents = 'auto';
+              downloadLink.textContent = 'Holiday.zip';
+
+            } catch (error) {
+              console.error('Error downloading sample ZIP file:', error);
+              downloadLink.style.pointerEvents = 'auto';
+              downloadLink.textContent = 'Holiday.zip';
+              alert('Failed to download sample ZIP file. Please check your connection and try again.');
+            }
+          });
+        }
+
+        // Drag-and-Drop Functionality
+        if (dragDropArea) {
+          dragDropArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dragDropArea.classList.add('drag-over');
+          });
+
+          dragDropArea.addEventListener('dragleave', function() {
+            dragDropArea.classList.remove('drag-over');
+          });
+
+          dragDropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dragDropArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              fileInput.files = files;
+              dragDropArea.querySelector('p').textContent = 'Selected: ' + files[0].name;
+            }
+          });
+
+          dragDropArea.addEventListener('click', function() {
+            fileInput.click();
+          });
+        }
+
+        if (fileInput) {
+          fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+              dragDropArea.querySelector('p').textContent = 'Selected: ' + fileInput.files[0].name;
+            }
+          });
+        }
+
+        // Form Submission with API Upload
+        if (form) {
+          form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const file = fileInput.files[0];
+
+            // Client-side validation
+            if (!file) {
+              messageText.textContent = 'Please select a file.';
+              message.className = 'message error';
+              successIcon.style.display = 'none';
+              errorIcon.style.display = 'inline';
+              message.style.display = 'flex';
+              return;
+            }
+
+            const validExtensions = ['.csv', '.xls', '.xlsx'];
+            const validMimeTypes = [
+              'text/csv',
+              'application/vnd.ms-excel',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+            if (!validExtensions.includes(fileExtension) || !validMimeTypes.includes(file.type)) {
+              messageText.textContent = 'Please select a valid CSV or Excel (.csv, .xls, or .xlsx) file.';
+              message.className = 'message error';
+              successIcon.style.display = 'none';
+              errorIcon.style.display = 'inline';
+              message.style.display = 'flex';
+              return;
+            }
+
+            if (file.size === 0) {
+              messageText.textContent = 'The selected file is empty.';
+              message.className = 'message error';
+              successIcon.style.display = 'none';
+              errorIcon.style.display = 'inline';
+              message.style.display = 'flex';
+              return;
+            }
+
+            // Log file details for debugging
+            console.log('Uploading file:', {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              lastModified: new Date(file.lastModified).toISOString()
+            });
+
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Uploading...';
+            progressBar.classList.add('active');
+            message.className = 'message';
+            messageText.textContent = '';
+            successIcon.style.display = 'none';
+            errorIcon.style.display = 'none';
+            message.style.display = 'none';
+
+            // Simulate progress for user feedback
+            let progressWidth = 0;
+            const progressInterval = setInterval(function() {
+              progressWidth += 10;
+              progress.style.width = progressWidth + '%';
+              if (progressWidth >= 100) {
+                clearInterval(progressInterval);
+              }
+            }, 200);
+
+            try {
+              const formData = new FormData();
+              formData.append('file', file);
+
+              const response = await fetch(UPLOAD_API_URL, {
+                method: 'POST',
+                headers: {
+                  'Authorization': 'Bearer ' + TOKEN
+                },
+                body: formData
+              });
+
+              clearInterval(progressInterval);
+              progress.style.width = '100%';
+
+              if (!response.ok) {
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                  const errorData = await response.json();
+                  errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
+                  console.error('Server error details:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    response: errorData,
+                    headers: Object.fromEntries(response.headers.entries())
+                  });
+                } catch (jsonError) {
+                  console.error('Error parsing server response:', jsonError);
+                  errorMessage = `HTTP error! status: ${response.status} (${response.statusText})`;
+                }
+                throw new Error(errorMessage);
+              }
+
+              const result = await response.json();
+              console.log('Upload successful:', {
+                response: result,
+                headers: Object.fromEntries(response.headers.entries())
+              });
+
+              progressBar.classList.remove('active');
+              messageText.textContent = result.message || 'Holidays uploaded successfully!';
+              message.className = 'message success';
+              successIcon.style.display = 'inline';
+              errorIcon.style.display = 'none';
+              message.style.display = 'flex';
+              form.reset();
+              dragDropArea.querySelector('p').textContent = 'Drag and drop your CSV or Excel file here or click to select';
+
+            } catch (error) {
+              console.error('Error uploading file:', error);
+              clearInterval(progressInterval);
+              progressBar.classList.remove('active');
+              messageText.textContent = error.message.includes('HTTP error! status: 400')
+                ? 'Failed to upload the file. Please download a fresh sample and try again without modifying it.'
+                : error.message || 'Failed to upload file. Please check your connection and try again.';
+              message.className = 'message error';
+              successIcon.style.display = 'none';
+              errorIcon.style.display = 'inline';
+              message.style.display = 'flex';
+            } finally {
+              uploadButton.disabled = false;
+              uploadButton.textContent = 'Upload Holidays';
+            }
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
