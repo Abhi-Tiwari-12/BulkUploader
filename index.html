@@ -26,8 +26,9 @@
     header {
       background: linear-gradient(90deg, #1e3a8a, #3b82f6);
       color: #ffffff;
-      padding: 1rem 1rem;
+      padding: 1rem;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
     }
     .header-container {
       max-width: 1440px;
@@ -100,6 +101,7 @@
     .main-container {
       display: flex;
       flex: 1;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -114,6 +116,8 @@
       height: 100vh;
       overflow-y: auto;
       transition: transform 0.3s ease-in-out;
+      flex-shrink: 0;
+      z-index: 10;
     }
     aside.hidden {
       transform: translateX(-100%);
@@ -190,11 +194,12 @@
       flex: 1;
       padding: 2rem 1.5rem;
       background-color: #f8fafc;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       position: relative;
       display: flex;
-      align-items: flex-start;
-      max-height: calc(100vh - 72px);
+      flex-direction: column;
+      min-height: 0;
     }
 
     /* Holiday Upload Styles */
@@ -206,11 +211,13 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
       width: 100%;
-      max-width: none;
+      max-width: 100%;
       max-height: 100%;
       margin: 0;
+      height: fit-content;
+      overflow: hidden;
       min-height: 0;
     }
     .holiday-upload-container h2 {
@@ -218,18 +225,31 @@
       font-weight: 700;
       color: #1f2a44;
       letter-spacing: -0.025em;
+      margin-bottom: 0;
+      flex-shrink: 0;
     }
     .holiday-upload-note {
       font-size: 0.875rem;
       color: #4b5563;
       font-style: normal;
       line-height: 1.5;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .upload-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: auto;
+      flex-shrink: 0;
     }
     .download-info {
       text-align: center;
-      padding: 1rem 0;
-      border-top: 1px solid #e5e7eb;
-      margin-top: auto;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      background-color: #f9fafb;
+      flex-shrink: 0;
     }
     .download-info p {
       font-size: 0.875rem;
@@ -252,11 +272,13 @@
       flex-direction: column;
       gap: 0.5rem;
       flex: 1;
+      min-height: 0;
     }
     .form-group label {
       font-size: 0.875rem;
       font-weight: 500;
       color: #374151;
+      flex-shrink: 0;
     }
     .drag-drop-area {
       border: 2px dashed #d1d5db;
@@ -269,8 +291,10 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      margin-bottom: 20px;
       min-height: 150px;
       max-height: 200px;
+      overflow: hidden;
     }
     .drag-drop-area.drag-over {
       border-color: #2563eb;
@@ -281,6 +305,7 @@
       font-size: 0.875rem;
       color: #4b5563;
       margin-bottom: 0.5rem;
+      word-break: break-word;
     }
     .drag-drop-area input[type="file"] {
       display: none;
@@ -295,8 +320,10 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-      margin-top: 1rem;
       align-self: center;
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 300px;
     }
     .upload-button:hover {
       background: linear-gradient(90deg, #1e40af, #2563eb);
@@ -315,7 +342,7 @@
       background-color: #e5e7eb;
       border-radius: 4px;
       overflow: hidden;
-      margin-top: 1rem;
+      flex-shrink: 0;
     }
     .progress-bar.active {
       display: block;
@@ -327,29 +354,36 @@
       transition: width 0.3s ease;
     }
     .message {
-      display: flex;
+      display: none;
       align-items: center;
       gap: 0.5rem;
       font-size: 0.875rem;
       padding: 0.75rem;
       border-radius: 6px;
-      margin-top: 1rem;
-      display: none;
+      max-width: 100%;
+      overflow: hidden;
       flex-wrap: wrap;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+    }
+    .message.show {
+      display: flex;
     }
     .message.success {
-      display: flex;
       background-color: #d1fae5;
       color: #065f46;
+      border-color: #a7f3d0;
     }
     .message.error {
-      display: flex;
       background-color: #fee2e2;
       color: #991b1b;
+      margin-top: 30px;
+      border-color: #fca5a5;
     }
     .message svg {
       width: 20px;
       height: 20px;
+      flex-shrink: 0;
     }
     .download-error-button {
       background: linear-gradient(90deg, #991b1b, #ef4444);
@@ -362,6 +396,7 @@
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
       margin-left: 0.5rem;
+      flex-shrink: 0;
     }
     .download-error-button:hover {
       background: linear-gradient(90deg, #7f1d1d, #dc2626);
@@ -374,9 +409,42 @@
       box-shadow: none;
     }
 
+    /* Revert Button - Always Active with Red Color, Above Download */
+    .revert-button {
+      background: linear-gradient(90deg, #dc2626, #ef4444) !important;
+      color: #ffffff !important;
+      padding: 0.75rem 1.5rem !important;
+      border-radius: 6px !important;
+      font-size: 0.875rem !important;
+      font-weight: 500 !important;
+      border: none !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      align-self: center !important;
+      flex-shrink: 0 !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important;
+      width: 100%;
+      max-width: 300px !important;
+    }
+    .revert-button:hover {
+      background: linear-gradient(90deg, #b91c1c, #dc2626) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+    }
+    .revert-button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3) !important;
+    }
+    .revert-button:disabled {
+      background: #9ca3af !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+      opacity: 0.6 !important;
+    }
+
     /* Popup Overlay Styles */
     .modal-overlay {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
@@ -385,7 +453,7 @@
       display: none;
       justify-content: center;
       align-items: center;
-      z-index: 100;
+      z-index: 1000;
     }
     .modal-overlay.show {
       display: flex;
@@ -396,6 +464,8 @@
       padding: 1.5rem;
       max-width: 400px;
       width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
       text-align: center;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       position: relative;
@@ -420,8 +490,23 @@
       margin-bottom: 1rem;
       line-height: 1.5;
     }
-    .download-button {
-      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+    .revert-select {
+      padding: 0.75rem;
+      font-size: 0.875rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background-color: #ffffff;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    .revert-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .confirm-revert-button {
+      background: linear-gradient(90deg, #dc2626, #ef4444);
       color: #ffffff;
       padding: 0.75rem 1.5rem;
       border-radius: 6px;
@@ -430,16 +515,29 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+      width: 100%;
     }
-    .download-button:hover {
-      background: linear-gradient(90deg, #1e40af, #2563eb);
+    .confirm-revert-button:hover:not(:disabled) {
+      background: linear-gradient(90deg, #b91c1c, #dc2626);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
-    .download-button:disabled {
+    .confirm-revert-button:disabled {
       background: #9ca3af;
       cursor: not-allowed;
       box-shadow: none;
+    }
+
+    /* Revert Modal Specific Styles */
+    .revert-popup-content {
+      text-align: left;
+    }
+    .revert-popup-content h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #1f2a44;
+      text-align: center;
     }
 
     /* Responsive Design */
@@ -461,15 +559,21 @@
         font-size: 1.25rem;
       }
       main#content-area {
-        padding: 1rem 1rem;
+        padding: 1rem;
       }
       .holiday-upload-container {
         padding: 1rem;
+        gap: 1rem;
       }
       .drag-drop-area {
         min-height: 120px;
         max-height: 150px;
         padding: 1rem;
+      }
+      .revert-button,
+      .upload-button {
+        max-width: none !important;
+        width: 100% !important;
       }
     }
     @media (min-width: 1024px) {
@@ -479,6 +583,21 @@
       .mobile-toggle {
         display: none;
       }
+    }
+
+    /* Custom Scrollbar */
+    main#content-area::-webkit-scrollbar {
+      width: 8px;
+    }
+    main#content-area::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    main#content-area::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    main#content-area::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
     }
   </style>
 </head>
@@ -492,7 +611,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <img src="creatives/Tsc logo.png" alt="TSC EDD BulkUploader Logo">
+        <img src="creatives/Tsc logo.png" alt="TSC EDD BulkUploader Logo" onerror="this.style.display='none'">
         <h1>TSC BulkUploader</h1>
       </div>
       <button id="logout-button" class="logout-button">
@@ -531,537 +650,577 @@
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Cutoff
+              Cutoff Upload
             </a>
           </li>
         </ul>
       </div>
     </aside>
 
-    <!-- Mobile Sidebar Overlay -->
+    <!-- Overlay for Mobile Sidebar -->
     <div id="mobile-sidebar-overlay" class="overlay"></div>
 
     <!-- Main Content -->
     <main id="content-area">
-      <!-- Default Variant Content -->
-      <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
-        <h2>Variant Upload</h2>
-        <p>Variant upload functionality will be implemented here.</p>
-      </div>
-      <!-- Holiday Popup Overlay -->
-      <div id="holiday-popup" class="modal-overlay">
-        <div class="modal-content">
-          <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
-          <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
-          <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
-        </div>
-      </div>
+      <!-- Initial content will be loaded via JS -->
     </main>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const sidebar = document.getElementById('sidebar');
-      const mobileToggle = document.getElementById('mobile-menu-toggle');
-      const overlay = document.getElementById('mobile-sidebar-overlay');
-      const contentArea = document.getElementById('content-area');
-      const logoutButton = document.getElementById('logout-button');
-      const links = document.querySelectorAll('aside a[data-section]');
-      const holidayPopup = document.getElementById('holiday-popup');
-      const closePopup = document.getElementById('close-popup');
-      const downloadPopupButton = document.getElementById('download-sample-popup');
-      let isSidebarOpen = false;
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const mobileToggle = document.getElementById('mobile-menu-toggle');
+    const overlay = document.getElementById('mobile-sidebar-overlay');
+    const contentArea = document.getElementById('content-area');
+    const logoutButton = document.getElementById('logout-button');
+    const links = document.querySelectorAll('aside a[data-section]');
+    let isSidebarOpen = false;
 
-      // API Configuration
-      const DOWNLOAD_API_URL = 'https://apis-stage.thesleepcompany.in/edd/upload/holidays/sample';
-      const UPLOAD_API_URL = 'https://apis-stage.thesleepcompany.in/edd/upload/holidays';
-      const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJhZG1pbiJdfQ.MFelpPBRMF7r88jdJZxGK0kvvhwX0f7xdw4yNxIRhGc';
+    // API Configuration
+    const API_BASE_URL = 'https://apis-stage.thesleepcompany.in';
+    const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJhZG1pbiJdfQ.MFelpPBRMF7r88jdJZxGK0kvvhwX0f7xdw4yNxIRhGc';
+    
+    const API_ENDPOINTS = {
+      downloadSample: `${API_BASE_URL}/edd/upload/holidays/sample`,
+      upload: `${API_BASE_URL}/edd/upload/holidays`,
+      revert: (count) => `${API_BASE_URL}/edd/upload/holidays/revert/${count}`
+    };
 
-      // Download Sample File via API
-      async function downloadSample(button) {
-        if (button) {
-          button.disabled = true;
-          const originalText = button.textContent;
-          button.textContent = 'Downloading...';
+    // Helper function to safely parse response
+    async function parseResponse(response) {
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      } else {
+        // Handle plain text responses
+        const text = await response.text();
+        return {
+          message: text || 'Operation completed',
+          isTextResponse: true
+        };
+      }
+    }
 
-          try {
-            const response = await fetch(DOWNLOAD_API_URL, {
-              method: 'GET',
-              headers: {
-                'Authorization': 'Bearer ' + TOKEN,
-                'Content-Type': 'application/json'
-              }
-            });
+    // Show message function
+    function showMessage(text, type = 'info') {
+      const message = document.getElementById('message');
+      const messageText = document.getElementById('message-text');
+      const successIcon = message?.querySelector('.success-icon');
+      const errorIcon = message?.querySelector('.error-icon');
+      const downloadErrorButton = document.getElementById('download-error-file');
 
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const blob = await response.blob();
-            
-            if (!blob || blob.size === 0) {
-              throw new Error('Empty response from server');
-            }
-
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'Holiday.zip';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-
-          } catch (error) {
-            console.error('Error downloading sample ZIP file:', error);
-            alert('Failed to download sample ZIP file. Please check your connection and try again.');
-          } finally {
-            button.disabled = false;
-            button.textContent = originalText;
-          }
+      if (message && messageText) {
+        messageText.textContent = text;
+        message.className = `message ${type}`;
+        if (successIcon) successIcon.style.display = type === 'success' ? 'inline' : 'none';
+        if (errorIcon) errorIcon.style.display = type === 'error' ? 'inline' : 'none';
+        message.classList.add('show');
+        
+        if (type === 'success') {
+          setTimeout(() => {
+            message.classList.remove('show');
+          }, 5000);
         }
       }
+    }
 
-      // Download Error File
-      function downloadErrorFile(file) {
-        if (!file) return;
-        const url = window.URL.createObjectURL(file);
+    // Download Sample File
+    async function downloadSample() {
+      const downloadLink = document.getElementById('download-sample-link');
+      if (!downloadLink) return;
+      
+      downloadLink.style.pointerEvents = 'none';
+      const originalText = downloadLink.textContent;
+      downloadLink.textContent = 'Downloading...';
+
+      try {
+        const response = await fetch(API_ENDPOINTS.downloadSample, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await parseResponse(response);
+          throw new Error(errorData.message || `HTTP ${response.status}: Failed to download sample`);
+        }
+
+        const blob = await response.blob();
+        if (!blob || blob.size === 0) {
+          throw new Error('Empty response from server');
+        }
+
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = file.name;
+        link.download = 'Holiday.zip';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+
+        showMessage('Sample file downloaded successfully!', 'success');
+
+      } catch (error) {
+        console.error('Download error:', error);
+        showMessage(`Download failed: ${error.message}`, 'error');
+      } finally {
+        downloadLink.style.pointerEvents = 'auto';
+        downloadLink.textContent = originalText;
+      }
+    }
+
+    // Download Error File
+    function downloadErrorFile(blob, filename) {
+      if (!blob) return;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'Holiday_Errors.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }
+
+    // Revert Uploads Function
+    async function revertUploads(count) {
+      if (!count || count < 1) {
+        showMessage('Please select a valid number of uploads to revert.', 'error');
+        return;
       }
 
-      // Popup Close Event
-      if (closePopup) {
-        closePopup.addEventListener('click', function() {
-          holidayPopup.classList.remove('show');
+      const revertButton = document.getElementById('confirm-revert');
+      if (!revertButton) return;
+      
+      const originalText = revertButton.textContent;
+      
+      try {
+        revertButton.disabled = true;
+        revertButton.textContent = 'Reverting...';
+        
+        const response = await fetch(API_ENDPOINTS.revert(count), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${TOKEN}`,
+            'Content-Type': 'application/json'
+          }
         });
+
+        if (!response.ok) {
+          const errorData = await parseResponse(response);
+          throw new Error(errorData.message || `HTTP ${response.status}: Revert failed`);
+        }
+
+        const result = await parseResponse(response);
+        console.log('Revert successful:', result);
+        
+        const successMessage = result.message || `Successfully reverted last ${count} upload(s)!`;
+        showMessage(successMessage, 'success');
+        closeRevertModal();
+        
+      } catch (error) {
+        console.error('Revert error:', error);
+        showMessage(`Revert failed: ${error.message}`, 'error');
+      } finally {
+        if (revertButton) {
+          revertButton.disabled = false;
+          revertButton.textContent = originalText;
+        }
+      }
+    }
+
+    // Close Revert Modal
+    function closeRevertModal() {
+      const revertPopup = document.getElementById('revert-popup');
+      const revertSelect = document.getElementById('revert-select');
+      const confirmRevert = document.getElementById('confirm-revert');
+      
+      if (revertPopup) {
+        revertPopup.classList.remove('show');
+      }
+      if (revertSelect) {
+        revertSelect.value = '';
+      }
+      if (confirmRevert) {
+        confirmRevert.disabled = true;
+        confirmRevert.textContent = 'Confirm Revert';
+      }
+    }
+
+    // Initialize Revert Modal Functionality
+    function initializeRevertModal() {
+      const revertPopup = document.getElementById('revert-popup');
+      const closeRevertPopup = document.getElementById('close-revert-popup');
+      const revertSelect = document.getElementById('revert-select');
+      const confirmRevert = document.getElementById('confirm-revert');
+
+      if (!revertPopup || !closeRevertPopup || !revertSelect || !confirmRevert) {
+        return;
       }
 
-      // Popup Download Event
-      if (downloadPopupButton) {
-        downloadPopupButton.addEventListener('click', function() {
-          downloadSample(downloadPopupButton);
-        });
-      }
-
-      // Mobile Sidebar Toggle
-      mobileToggle.addEventListener('click', function() {
-        isSidebarOpen = !isSidebarOpen;
-        if (isSidebarOpen) {
-          sidebar.classList.remove('hidden');
-          sidebar.classList.add('show');
-          overlay.classList.add('show');
-        } else {
-          sidebar.classList.remove('show');
-          sidebar.classList.add('hidden');
-          overlay.classList.remove('show');
+      // Event listeners
+      closeRevertPopup.addEventListener('click', closeRevertModal);
+      
+      revertPopup.addEventListener('click', (e) => {
+        if (e.target === revertPopup) {
+          closeRevertModal();
         }
       });
 
-      overlay.addEventListener('click', function() {
+      revertSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        confirmRevert.disabled = !selectedValue;
+        confirmRevert.textContent = selectedValue ? `Revert Last ${selectedValue} Upload(s)` : 'Confirm Revert';
+      });
+
+      confirmRevert.addEventListener('click', function() {
+        const count = parseInt(revertSelect.value);
+        if (count) {
+          revertUploads(count);
+        }
+      });
+
+      // ESC key to close
+      const handleEscape = (e) => {
+        if (e.key === 'Escape' && revertPopup.classList.contains('show')) {
+          closeRevertModal();
+        }
+      };
+      document.addEventListener('keydown', handleEscape);
+
+      // Cleanup function
+      revertPopup._handleEscape = handleEscape;
+    }
+
+    // Revert Button Handler - Always Active
+    function initializeRevertButton() {
+      const revertButton = document.getElementById('revert-last-uploads');
+      if (revertButton) {
+        revertButton.disabled = false;
+        revertButton.style.opacity = '1';
+        revertButton.style.cursor = 'pointer';
+        
+        revertButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const revertPopup = document.getElementById('revert-popup');
+          if (revertPopup) {
+            revertPopup.classList.add('show');
+          }
+        });
+      }
+    }
+
+    // Initialize Holiday Upload
+    function initializeHolidayUpload() {
+      const form = document.getElementById('holiday-upload-form');
+      const fileInput = document.getElementById('file-input');
+      const dragDropArea = document.getElementById('drag-drop-area');
+      const uploadButton = document.getElementById('upload-button');
+      const progressBar = document.getElementById('progress-bar');
+      const progress = document.getElementById('progress');
+      const message = document.getElementById('message');
+      const downloadLink = document.getElementById('download-sample-link');
+      const downloadErrorButton = document.getElementById('download-error-file');
+
+      if (!form || !fileInput) return;
+
+      // Download sample link
+      if (downloadLink) {
+        downloadLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          downloadSample();
+        });
+      }
+
+      // Drag and drop functionality
+      if (dragDropArea) {
+        const handleDragOver = (e) => {
+          e.preventDefault();
+          dragDropArea.classList.add('drag-over');
+        };
+
+        const handleDragLeave = (e) => {
+          e.preventDefault();
+          dragDropArea.classList.remove('drag-over');
+        };
+
+        const handleDrop = (e) => {
+          e.preventDefault();
+          dragDropArea.classList.remove('drag-over');
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            fileInput.files = files;
+            dragDropArea.querySelector('p').textContent = 'Selected: ' + files[0].name;
+          }
+        };
+
+        dragDropArea.addEventListener('dragover', handleDragOver);
+        dragDropArea.addEventListener('dragenter', handleDragOver);
+        dragDropArea.addEventListener('dragleave', handleDragLeave);
+        dragDropArea.addEventListener('drop', handleDrop);
+        dragDropArea.addEventListener('click', () => fileInput.click());
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener('change', function() {
+          if (fileInput.files.length > 0) {
+            dragDropArea.querySelector('p').textContent = 'Selected: ' + fileInput.files[0].name;
+          }
+        });
+      }
+
+      // Form submission
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const file = fileInput.files[0];
+
+        if (!file) {
+          showMessage('Please select a file.', 'error');
+          return;
+        }
+
+        const validExtensions = ['.csv', '.xls', '.xlsx'];
+        const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+        if (!validExtensions.includes(fileExtension)) {
+          showMessage('Please select a valid CSV or Excel (.csv, .xls, or .xlsx) file.', 'error');
+          return;
+        }
+
+        if (file.size === 0) {
+          showMessage('The selected file is empty.', 'error');
+          return;
+        }
+
+        uploadButton.disabled = true;
+        uploadButton.textContent = 'Uploading...';
+        if (progressBar) progressBar.classList.add('active');
+        if (message) message.classList.remove('show');
+
+        let progressWidth = 0;
+        const progressInterval = setInterval(() => {
+          progressWidth += 10;
+          if (progress) progress.style.width = progressWidth + '%';
+          if (progressWidth >= 100) clearInterval(progressInterval);
+        }, 200);
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch(API_ENDPOINTS.upload, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${TOKEN}`
+            },
+            body: formData
+          });
+
+          clearInterval(progressInterval);
+          if (progress) progress.style.width = '100%';
+
+          if (!response.ok) {
+            const contentType = response.headers.get('content-type');
+            let errorBlob = null;
+            let errorMessage = 'Failed to upload file.';
+
+            if (contentType && contentType.includes('application/zip')) {
+              errorBlob = await response.blob();
+              errorMessage = 'File validation failed. Download the error file for details.';
+            } else {
+              const errorData = await parseResponse(response);
+              errorMessage = errorData.message || errorData.error || 'Unknown error occurred.';
+            }
+
+            if (errorBlob) {
+              throw new Error(errorMessage, { cause: { file: errorBlob, filename: 'Holiday_Errors.zip' } });
+            } else {
+              throw new Error(errorMessage);
+            }
+          }
+
+          const result = await parseResponse(response);
+          if (progressBar) progressBar.classList.remove('active');
+          showMessage(result.message || 'Holidays uploaded successfully!', 'success');
+          
+          form.reset();
+          if (progress) progress.style.width = '0%';
+          if (dragDropArea) {
+            dragDropArea.querySelector('p').textContent = 'Drag and drop your CSV or Excel file here or click to select';
+          }
+
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          clearInterval(progressInterval);
+          if (progressBar) progressBar.classList.remove('active');
+          showMessage(error.message, 'error');
+          
+          if (error.cause?.file && downloadErrorButton) {
+            downloadErrorButton.style.display = 'inline-block';
+            downloadErrorButton.onclick = () => downloadErrorFile(error.cause.file, error.cause.filename);
+          }
+        } finally {
+          uploadButton.disabled = false;
+          uploadButton.textContent = 'Upload Holidays';
+        }
+      });
+
+      // Initialize revert functionality
+      initializeRevertButton();
+      initializeRevertModal();
+    }
+
+    // Mobile Sidebar Toggle
+    if (mobileToggle) {
+      mobileToggle.addEventListener('click', () => {
+        isSidebarOpen = !isSidebarOpen;
+        sidebar.classList.toggle('show', isSidebarOpen);
+        sidebar.classList.toggle('hidden', !isSidebarOpen);
+        overlay.classList.toggle('show', isSidebarOpen);
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
         sidebar.classList.remove('show');
         sidebar.classList.add('hidden');
         overlay.classList.remove('show');
         isSidebarOpen = false;
       });
+    }
 
-      // Sidebar Navigation
-      links.forEach(function(link) {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const section = link.getAttribute('data-section');
+    // Sidebar Navigation
+    links.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const section = this.getAttribute('data-section');
 
-          // Remove active from all
-          links.forEach(function(l) {
-            l.classList.remove('active-section');
-            l.setAttribute('aria-current', 'false');
-          });
-
-          // Add active to current
-          link.classList.add('active-section');
-          link.setAttribute('aria-current', 'page');
-
-          // Update content based on section
-          if (section === 'variant') {
-            contentArea.innerHTML = `
-              <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
-                <h2>Variant Upload</h2>
-                <p>Variant upload functionality will be implemented here.</p>
-              </div>
-              <div id="holiday-popup" class="modal-overlay">
-                <div class="modal-content">
-                  <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
-                  <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
-                  <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
-                </div>
-              </div>
-            `;
-            // Reinitialize popup event listeners
-            setTimeout(() => {
-              const newClosePopup = document.getElementById('close-popup');
-              const newDownloadPopupButton = document.getElementById('download-sample-popup');
-              if (newClosePopup) {
-                newClosePopup.addEventListener('click', function() {
-                  document.getElementById('holiday-popup').classList.remove('show');
-                });
-              }
-              if (newDownloadPopupButton) {
-                newDownloadPopupButton.addEventListener('click', function() {
-                  downloadSample(newDownloadPopupButton);
-                });
-              }
-            }, 0);
-          } else if (section === 'holiday') {
-            contentArea.innerHTML = `
-              <div class="holiday-upload-container">
-                <h2>Holiday Upload</h2>
-                <p class="holiday-upload-note">Upload the holiday sheet in CSV or Excel (.csv, .xls, or .xlsx) format.</p>
-                <form class="holiday-upload-form" id="holiday-upload-form">
-                  <div class="form-group">
-                    <label>Upload a Holidays Sheet</label>
-                    <div class="drag-drop-area" id="drag-drop-area">
-                      <p>Drag and drop your CSV or Excel file here or click to select</p>
-                      <input type="file" id="file-input" accept=".csv,.xls,.xlsx" required>
-                    </div>
-                  </div>
-                  <button type="submit" class="upload-button" id="upload-button">Upload Holidays</button>
-                  <div class="progress-bar" id="progress-bar">
-                    <div id="progress"></div>
-                  </div>
-                  <div class="message" id="message">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="success-icon" style="display: none;">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="error-icon" style="display: none;">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    <span id="message-text"></span>
-                    <button id="download-error-file" class="download-error-button" style="display: none;">Download Error File</button>
-                  </div>
-                </form>
-                <div class="download-info">
-                  <p>Download the sample <a href="#" class="download-link" id="download-sample-link">Holiday.zip</a> file</p>
-                </div>
-              </div>
-              <div id="holiday-popup" class="modal-overlay">
-                <div class="modal-content">
-                  <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
-                  <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
-                  <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
-                </div>
-              </div>
-            `;
-            // Initialize holiday functionality and popup event listeners
-            setTimeout(() => {
-              initializeHolidayUpload();
-              const newClosePopup = document.getElementById('close-popup');
-              const newDownloadPopupButton = document.getElementById('download-sample-popup');
-              if (newClosePopup) {
-                newClosePopup.addEventListener('click', function() {
-                  document.getElementById('holiday-popup').classList.remove('show');
-                });
-              }
-              if (newDownloadPopupButton) {
-                newDownloadPopupButton.addEventListener('click', function() {
-                  downloadSample(newDownloadPopupButton);
-                });
-              }
-              document.getElementById('holiday-popup').classList.add('show');
-            }, 0);
-          } else if (section === 'cutoff') {
-            contentArea.innerHTML = `
-              <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
-                <h2>Cutoff Upload</h2>
-                <p>Cutoff upload functionality will be implemented here.</p>
-              </div>
-              <div id="holiday-popup" class="modal-overlay">
-                <div class="modal-content">
-                  <button id="close-popup" class="close-button" aria-label="Close popup">&times;</button>
-                  <p class="modal-note">To ensure successful uploads, please download the sample Holiday.zip file containing CSV or Excel templates and format your data accordingly.</p>
-                  <button id="download-sample-popup" class="download-button">Download Sample Holiday.zip</button>
-                </div>
-              </div>
-            `;
-            // Reinitialize popup event listeners
-            setTimeout(() => {
-              const newClosePopup = document.getElementById('close-popup');
-              const newDownloadPopupButton = document.getElementById('download-sample-popup');
-              if (newClosePopup) {
-                newClosePopup.addEventListener('click', function() {
-                  document.getElementById('holiday-popup').classList.remove('show');
-                });
-              }
-              if (newDownloadPopupButton) {
-                newDownloadPopupButton.addEventListener('click', function() {
-                  downloadSample(newDownloadPopupButton);
-                });
-              }
-            }, 0);
-          }
-
-          // Close mobile sidebar if open
-          if (isSidebarOpen) {
-            sidebar.classList.remove('show');
-            sidebar.classList.add('hidden');
-            overlay.classList.remove('show');
-            isSidebarOpen = false;
-          }
+        // Update active states
+        links.forEach(l => {
+          l.classList.remove('active-section');
+          l.setAttribute('aria-current', 'false');
         });
+        this.classList.add('active-section');
+        this.setAttribute('aria-current', 'page');
+
+        // Close mobile sidebar
+        if (isSidebarOpen) {
+          sidebar.classList.remove('show');
+          sidebar.classList.add('hidden');
+          overlay.classList.remove('show');
+          isSidebarOpen = false;
+        }
+
+        // Load section content
+        if (section === 'holiday') {
+          loadHolidaySection();
+        } else {
+          contentArea.innerHTML = `
+            <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
+              <h2>${section.charAt(0).toUpperCase() + section.slice(1)} Upload</h2>
+              <p>${section} upload functionality will be implemented here.</p>
+            </div>
+          `;
+        }
       });
-
-      // Logout Button
-      logoutButton.addEventListener('click', function() {
-        alert('Logging out... (Add your auth logout logic here)');
-      });
-
-      function initializeHolidayUpload() {
-        const form = document.getElementById('holiday-upload-form');
-        const fileInput = document.getElementById('file-input');
-        const dragDropArea = document.getElementById('drag-drop-area');
-        const uploadButton = document.getElementById('upload-button');
-        const progressBar = document.getElementById('progress-bar');
-        const progress = document.getElementById('progress');
-        const message = document.getElementById('message');
-        const messageText = document.getElementById('message-text');
-        const successIcon = document.querySelector('.success-icon');
-        const errorIcon = document.querySelector('.error-icon');
-        const downloadLink = document.getElementById('download-sample-link');
-        const downloadErrorButton = document.getElementById('download-error-file');
-
-        if (!form || !fileInput) return; // Exit if elements don't exist
-
-        // Download Sample File via API
-        if (downloadLink) {
-          downloadLink.addEventListener('click', async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            downloadLink.style.pointerEvents = 'none';
-            downloadLink.textContent = 'Downloading...';
-            
-            try {
-              const response = await fetch(DOWNLOAD_API_URL, {
-                method: 'GET',
-                headers: {
-                  'Authorization': 'Bearer ' + TOKEN,
-                  'Content-Type': 'application/json'
-                }
-              });
-
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-
-              const blob = await response.blob();
-              
-              if (!blob || blob.size === 0) {
-                throw new Error('Empty response from server');
-              }
-
-              const url = window.URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = 'Holiday.zip';
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              window.URL.revokeObjectURL(url);
-
-              downloadLink.style.pointerEvents = 'auto';
-              downloadLink.textContent = 'Holiday.zip';
-
-            } catch (error) {
-              console.error('Error downloading sample ZIP file:', error);
-              downloadLink.style.pointerEvents = 'auto';
-              downloadLink.textContent = 'Holiday.zip';
-              alert('Failed to download sample ZIP file. Please check your connection and try again.');
-            }
-          });
-        }
-
-        // Drag-and-Drop Functionality
-        if (dragDropArea) {
-          dragDropArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            dragDropArea.classList.add('drag-over');
-          });
-
-          dragDropArea.addEventListener('dragleave', function() {
-            dragDropArea.classList.remove('drag-over');
-          });
-
-          dragDropArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            dragDropArea.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-              fileInput.files = files;
-              dragDropArea.querySelector('p').textContent = 'Selected: ' + files[0].name;
-            }
-          });
-
-          dragDropArea.addEventListener('click', function() {
-            fileInput.click();
-          });
-        }
-
-        if (fileInput) {
-          fileInput.addEventListener('change', function() {
-            if (fileInput.files.length > 0) {
-              dragDropArea.querySelector('p').textContent = 'Selected: ' + fileInput.files[0].name;
-            }
-          });
-        }
-
-        // Form Submission with API Upload
-        if (form) {
-          form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const file = fileInput.files[0];
-
-            // Client-side validation
-            if (!file) {
-              messageText.textContent = 'Please select a file.';
-              message.className = 'message error';
-              successIcon.style.display = 'none';
-              errorIcon.style.display = 'inline';
-              downloadErrorButton.style.display = 'none';
-              message.style.display = 'flex';
-              return;
-            }
-
-            const validExtensions = ['.csv', '.xls', '.xlsx'];
-            const validMimeTypes = [
-              'text/csv',
-              'application/vnd.ms-excel',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            ];
-            const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-            if (!validExtensions.includes(fileExtension) || !validMimeTypes.includes(file.type)) {
-              messageText.textContent = 'Please select a valid CSV or Excel (.csv, .xls, or .xlsx) file.';
-              message.className = 'message error';
-              successIcon.style.display = 'none';
-              errorIcon.style.display = 'inline';
-              downloadErrorButton.style.display = 'inline';
-              downloadErrorButton.onclick = () => downloadErrorFile(file);
-              message.style.display = 'flex';
-              return;
-            }
-
-            if (file.size === 0) {
-              messageText.textContent = 'The selected file is empty.';
-              message.className = 'message error';
-              successIcon.style.display = 'none';
-              errorIcon.style.display = 'inline';
-              downloadErrorButton.style.display = 'inline';
-              downloadErrorButton.onclick = () => downloadErrorFile(file);
-              message.style.display = 'flex';
-              return;
-            }
-
-            // Log file details for debugging
-            console.log('Uploading file:', {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: new Date(file.lastModified).toISOString()
-            });
-
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Uploading...';
-            progressBar.classList.add('active');
-            message.className = 'message';
-            messageText.textContent = '';
-            successIcon.style.display = 'none';
-            errorIcon.style.display = 'none';
-            downloadErrorButton.style.display = 'none';
-            message.style.display = 'none';
-
-            // Simulate progress for user feedback
-            let progressWidth = 0;
-            const progressInterval = setInterval(function() {
-              progressWidth += 10;
-              progress.style.width = progressWidth + '%';
-              if (progressWidth >= 100) {
-                clearInterval(progressInterval);
-              }
-            }, 200);
-
-            try {
-              const formData = new FormData();
-              formData.append('file', file);
-
-              const response = await fetch(UPLOAD_API_URL, {
-                method: 'POST',
-                headers: {
-                  'Authorization': 'Bearer ' + TOKEN
-                },
-                body: formData
-              });
-
-              clearInterval(progressInterval);
-              progress.style.width = '100%';
-
-              if (!response.ok) {
-                let errorMessage = 'Failed to upload file. Please check your connection and try again.';
-                try {
-                  const errorData = await response.json();
-                  errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
-                  console.error('Server error details:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    response: errorData,
-                    headers: Object.fromEntries(response.headers.entries())
-                  });
-                } catch (jsonError) {
-                  console.error('Error parsing server response:', jsonError);
-                  errorMessage = `HTTP error! status: ${response.status} (${response.statusText})`;
-                }
-                throw new Error(errorMessage);
-              }
-
-              const result = await response.json();
-              console.log('Upload successful:', {
-                response: result,
-                headers: Object.fromEntries(response.headers.entries())
-              });
-
-              progressBar.classList.remove('active');
-              const successMessage = result.message || 'Holidays uploaded successfully!';
-              const previousVersion = result.previousVersion ? ` Previous Version: ${result.previousVersion}` : '';
-              messageText.textContent = `${successMessage}${previousVersion}`;
-              message.className = 'message success';
-              successIcon.style.display = 'inline';
-              errorIcon.style.display = 'none';
-              downloadErrorButton.style.display = 'none';
-              message.style.display = 'flex';
-              form.reset();
-              dragDropArea.querySelector('p').textContent = 'Drag and drop your CSV or Excel file here or click to select';
-
-            } catch (error) {
-              console.error('Error uploading file:', error);
-              clearInterval(progressInterval);
-              progressBar.classList.remove('active');
-              messageText.textContent = error.message;
-              message.className = 'message error';
-              successIcon.style.display = 'none';
-              errorIcon.style.display = 'inline';
-              downloadErrorButton.style.display = 'inline';
-              downloadErrorButton.onclick = () => downloadErrorFile(file);
-              message.style.display = 'flex';
-            } finally {
-              uploadButton.disabled = false;
-              uploadButton.textContent = 'Upload Holidays';
-            }
-          });
-        }
-      }
     });
+
+    // Load Holiday Section
+    function loadHolidaySection() {
+      contentArea.innerHTML = `
+        <div class="holiday-upload-container">
+          <h2>Holiday Upload</h2>
+          <p class="holiday-upload-note">Upload the holiday sheet in CSV or Excel (.csv, .xls, or .xlsx) format.</p>
+          
+          <form class="holiday-upload-form" id="holiday-upload-form">
+            <div class="form-group">
+              <label>Upload a Holidays Sheet</label>
+              <div class="drag-drop-area" id="drag-drop-area">
+                <p>Drag and drop your CSV or Excel file here or click to select</p>
+                <input type="file" id="file-input" accept=".csv,.xls,.xlsx" required>
+              </div>
+            </div>
+            <button type="submit" class="upload-button" id="upload-button">Upload Holidays</button>
+            <div class="progress-bar" id="progress-bar">
+              <div id="progress"></div>
+            </div>
+            <div class="message" id="message">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="success-icon" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="error-icon" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span id="message-text"></span>
+              <button id="download-error-file" class="download-error-button" style="display: none;">Download Error File</button>
+            </div>
+          </form>
+
+          <!-- Revert Button - Positioned ABOVE Download Sample -->
+          <button id="revert-last-uploads" class="revert-button">⚠️ Revert Last Uploads</button>
+
+          <div class="upload-actions">
+            <div class="download-info">
+              <p>Download the sample <a href="#" class="download-link" id="download-sample-link">Holiday.zip</a> file to get the correct format</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revert Modal -->
+        <div id="revert-popup" class="modal-overlay">
+          <div class="modal-content">
+            <button id="close-revert-popup" class="close-button" aria-label="Close popup">&times;</button>
+            <div class="revert-popup-content">
+              <h3>⚠️ Revert Last Uploads</h3>
+              <p class="modal-note">This action will <strong>permanently</strong> revert the selected number of recent uploads. This cannot be undone.</p>
+              <select id="revert-select" class="revert-select">
+                <option value="" disabled selected>Select number of uploads to revert</option>
+                <option value="1">1 Upload</option>
+                <option value="2">2 Uploads</option>
+                <option value="3">3 Uploads</option>
+                <option value="4">4 Uploads</option>
+                <option value="5">5 Uploads</option>
+                <option value="6">6 Uploads</option>
+                <option value="7">7 Uploads</option>
+                <option value="8">8 Uploads</option>
+                <option value="9">9 Uploads</option>
+                <option value="10">10 Uploads</option>
+              </select>
+              <button id="confirm-revert" class="confirm-revert-button" disabled>Confirm Revert</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Initialize after DOM update
+      setTimeout(initializeHolidayUpload, 100);
+    }
+
+    // Logout functionality
+    if (logoutButton) {
+      logoutButton.addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+          // Add actual logout logic here
+          alert('Logging out...');
+          // window.location.href = '/login'; // Replace with actual logout URL
+        }
+      });
+    }
+
+    // Cleanup previous modals
+    const existingPopup = document.getElementById('revert-popup');
+    if (existingPopup && existingPopup._handleEscape) {
+      document.removeEventListener('keydown', existingPopup._handleEscape);
+    }
+
+    // Initial load - show holiday section
+    loadHolidaySection();
+  });
   </script>
 </body>
 </html>
