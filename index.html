@@ -715,14 +715,18 @@
     }
 
     // Show message function
-    function showMessage(text, type = 'info') {
+    function showMessage(text, type = 'info', previousVersion = null) {
       const message = document.getElementById('message');
       const messageText = document.getElementById('message-text');
       const successIcon = message?.querySelector('.success-icon');
       const errorIcon = message?.querySelector('.error-icon');
 
       if (message && messageText) {
-        messageText.textContent = text;
+        // Include previousVersion in the message if provided and type is success
+        const displayText = type === 'success' && previousVersion !== null 
+          ? `${text} Previous Version: ${previousVersion}`
+          : text;
+        messageText.textContent = displayText;
         message.className = `message ${type}`;
         if (successIcon) successIcon.style.display = type === 'success' ? 'inline' : 'none';
         if (errorIcon) errorIcon.style.display = type === 'error' ? 'inline' : 'none';
@@ -1068,7 +1072,7 @@
         }, 200);
 
         try {
-          // FIXED: Use correct field name 'file' as per Postman curl
+          // Use correct field name 'file' as per Postman curl
           const formData = new FormData();
           formData.append('file', file);
 
@@ -1090,7 +1094,8 @@
 
           const result = await parseResponse(response);
           if (progressBar) progressBar.classList.remove('active');
-          showMessage(result.message || 'Holidays uploaded successfully!', 'success');
+          // Pass previousVersion to showMessage if present
+          showMessage(result.message || 'Holidays uploaded successfully!', 'success', result.previousVersion);
           
           form.reset();
           if (progress) progress.style.width = '0%';
