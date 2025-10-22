@@ -953,7 +953,7 @@
       }
     }
 
-    // Initialize Holiday Upload with FIXED field name
+    // Initialize Holiday Upload with CORRECT field name
     function initializeHolidayUpload() {
       const form = document.getElementById('holiday-upload-form');
       const fileInput = document.getElementById('file-input');
@@ -1016,7 +1016,7 @@
         
         const files = e.dataTransfer.files;
         if (files.length > 0 && isValidFile(files[0])) {
-          fileInput.files = new FileList([files[0]]);
+          fileInput.files = files;
           handleFileChange();
         } else if (files.length > 0) {
           showMessage('Invalid file dropped. Only CSV and Excel files are accepted.', 'error');
@@ -1068,19 +1068,14 @@
         }, 200);
 
         try {
-          // FIXED: Use correct field name - API expects different field name
+          // FIXED: Use correct field name 'file' as per Postman curl
           const formData = new FormData();
-          formData.append('holidayFile', file); // CHANGED FROM 'file' to 'holidayFile'
-          // Alternative field names to try if 'holidayFile' doesn't work:
-          // formData.append('holidays', file);
-          // formData.append('upload', file);
-          // formData.append('document', file);
+          formData.append('file', file);
 
           const response = await fetch(API_ENDPOINTS.upload, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${TOKEN}`
-              // REMOVED Content-Type header - let browser set multipart/form-data boundary
             },
             body: formData
           });
@@ -1090,12 +1085,6 @@
 
           if (!response.ok) {
             const errorData = await parseResponse(response);
-            
-            // Handle the specific "Unexpected field - file" error
-            if (errorData.message && errorData.message.includes('Unexpected field')) {
-              throw new Error('Server expects different field name. Please contact administrator or try downloading sample file format.');
-            }
-            
             throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: Upload failed`);
           }
 
@@ -1188,7 +1177,7 @@
               <label>Upload a Holidays Sheet</label>
               <div class="drag-drop-area" id="drag-drop-area">
                 <p>Drag and drop your CSV or Excel file here or click to select<br><small>Only .csv, .xls, .xlsx files accepted (Max 10MB)</small></p>
-                <input type="file" id="file-input" name="holidayFile" accept=".csv,.xls,.xlsx" required>
+                <input type="file" id="file-input" name="file" accept=".csv,.xls,.xlsx" required>
                 <div class="file-info"></div>
               </div>
             </div>
