@@ -416,6 +416,8 @@
       box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important;
       width: 100%;
       max-width: 300px !important;
+      margin: 0 auto 1.5rem auto !important; /* Center and add space below */
+      display: block !important; /* Ensure block-level centering */
     }
     .revert-button:hover {
       background: linear-gradient(90deg, #b91c1c, #dc2626) !important;
@@ -559,6 +561,16 @@
       background-color: #f1f5f9;
     }
 
+    /* Button Spacing and Alignment */
+    .upload-container form {
+      margin-bottom: 1.5rem;
+    }
+
+    /* Ensure Upload Actions are Properly Spaced */
+    .upload-actions {
+      margin-top: 0; /* Remove default top margin to align with Holiday section */
+    }
+
     /* Responsive Design */
     @media (max-width: 1023px) {
       aside {
@@ -649,7 +661,7 @@
       <div class="sidebar-nav">
         <ul>
           <li>
-            <a href="#" data-section="variant" class="active-section" aria-current="page">
+            <a href="#" data-section="variant">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
@@ -665,7 +677,7 @@
             </a>
           </li>
           <li>
-            <a href="#" data-section="cutoff">
+            <a href="#" data-section="cutoff" class="active-section" aria-current="page">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -714,6 +726,11 @@
         downloadSample: `${API_BASE_URL}/edd/upload/variant-delays/sample`,
         upload: `${API_BASE_URL}/edd/upload/variant-delays`,
         revert: (count) => `${API_BASE_URL}/edd/upload/variant-delays/revert/${count}`
+      },
+      cutoff: {
+        downloadSample: `${API_BASE_URL}/edd/upload/cutoffs/sample`,
+        upload: `${API_BASE_URL}/edd/upload/cutoffs`,
+        revert: (count) => `${API_BASE_URL}/edd/upload/cutoffs/revert/${count}`
       }
     };
 
@@ -823,7 +840,7 @@
       }
     }
 
-    // Download Sample File
+    // Download Sample File with retry logic
     async function downloadSample(containerId, section) {
       const downloadLink = document.getElementById(`${containerId}-download-sample-link`);
       if (!downloadLink) return;
@@ -832,43 +849,59 @@
       const originalText = downloadLink.textContent;
       downloadLink.textContent = 'Downloading...';
 
-      try {
-        const response = await fetch(API_ENDPOINTS[section].downloadSample, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${TOKEN}`,
-            'Content-Type': 'application/json'
+      let attempts = 0;
+      const maxAttempts = 3;
+      const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+      while (attempts < maxAttempts) {
+        try {
+          const response = await fetch(API_ENDPOINTS[section].downloadSample, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            if (response.status === 503) {
+              attempts++;
+              if (attempts < maxAttempts) {
+                showMessage(containerId, `Service unavailable, retrying (${attempts}/${maxAttempts})...`, 'error');
+                await delay(2000); // Wait 2 seconds before retry
+                continue;
+              }
+              throw new Error('Service temporarily unavailable after multiple attempts');
+            }
+            const errorData = await parseResponse(response);
+            throw new Error(errorData.message || `HTTP ${response.status}: Failed to download sample`);
           }
-        });
 
-        if (!response.ok) {
-          const errorData = await parseResponse(response);
-          throw new Error(errorData.message || `HTTP ${response.status}: Failed to download sample`);
+          const blob = await response.blob();
+          if (!blob || blob.size === 0) {
+            throw new Error('Empty response from server');
+          }
+
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${section === 'variantOos' ? 'Variant_OOS' : section === 'variantDelays' ? 'Variant_Delays' : 'Cutoff'}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(link);
+
+          showMessage(containerId, 'Sample file downloaded successfully!', 'success');
+          break;
+
+        } catch (error) {
+          console.error('Download error:', error);
+          showMessage(containerId, `Download failed: ${error.message}`, 'error');
         }
-
-        const blob = await response.blob();
-        if (!blob || blob.size === 0) {
-          throw new Error('Empty response from server');
-        }
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${section === 'variantOos' ? 'Variant_OOS' : 'Variant_Delays'}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-
-        showMessage(containerId, 'Sample file downloaded successfully!', 'success');
-
-      } catch (error) {
-        console.error('Download error:', error);
-        showMessage(containerId, `Download failed: ${error.message}`, 'error');
-      } finally {
-        downloadLink.style.pointerEvents = 'auto';
-        downloadLink.textContent = originalText;
       }
+
+      downloadLink.style.pointerEvents = 'auto';
+      downloadLink.textContent = originalText;
     }
 
     // Revert Uploads Function
@@ -1170,6 +1203,11 @@
       initializeUpload('variant-delays', 'variantDelays', 'Variant Delays');
     }
 
+    // Initialize Cutoff Upload
+    function initializeCutoffUpload() {
+      initializeUpload('cutoff', 'cutoff', 'Cutoffs');
+    }
+
     // Mobile Sidebar Toggle
     if (mobileToggle) {
       mobileToggle.addEventListener('click', () => {
@@ -1213,6 +1251,8 @@
           loadHolidaySection();
         } else if (section === 'variant') {
           loadVariantSection();
+        } else if (section === 'cutoff') {
+          loadCutoffSection();
         } else {
           contentArea.innerHTML = `
             <div style="max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center;">
@@ -1272,16 +1312,16 @@
               <p class="modal-note">This action will <strong>permanently</strong> revert the selected number of recent uploads. This cannot be undone.</p>
               <select id="holiday-revert-select" class="revert-select">
                 <option value="" disabled selected>Select number of uploads to revert</option>
-                <option value="1">1 Upload</option>
-                <option value="2">2 Uploads</option>
-                <option value="3">3 Uploads</option>
-                <option value="4">4 Uploads</option>
-                <option value="5">5 Uploads</option>
-                <option value="6">6 Uploads</option>
-                <option value="7">7 Uploads</option>
-                <option value="8">8 Uploads</option>
-                <option value="9">9 Uploads</option>
                 <option value="10">10 Uploads</option>
+                <option value="9">9 Uploads</option>
+                <option value="8">8 Uploads</option>
+                <option value="7">7 Uploads</option>
+                <option value="6">6 Uploads</option>
+                <option value="5">5 Uploads</option>
+                <option value="4">4 Uploads</option>
+                <option value="3">3 Uploads</option>
+                <option value="2">2 Uploads</option>
+                <option value="1">1 Upload</option>
               </select>
               <button id="holiday-confirm-revert" class="confirm-revert-button" disabled>Confirm Revert</button>
             </div>
@@ -1380,16 +1420,16 @@
                 <p class="modal-note">This action will <strong>permanently</strong> revert the selected number of recent Variant OOS uploads. This cannot be undone.</p>
                 <select id="variant-oos-revert-select" class="revert-select">
                   <option value="" disabled selected>Select number of uploads to revert</option>
-                  <option value="1">1 Upload</option>
-                  <option value="2">2 Uploads</option>
-                  <option value="3">3 Uploads</option>
-                  <option value="4">4 Uploads</option>
-                  <option value="5">5 Uploads</option>
-                  <option value="6">6 Uploads</option>
-                  <option value="7">7 Uploads</option>
-                  <option value="8">8 Uploads</option>
-                  <option value="9">9 Uploads</option>
                   <option value="10">10 Uploads</option>
+                  <option value="9">9 Uploads</option>
+                  <option value="8">8 Uploads</option>
+                  <option value="7">7 Uploads</option>
+                  <option value="6">6 Uploads</option>
+                  <option value="5">5 Uploads</option>
+                  <option value="4">4 Uploads</option>
+                  <option value="3">3 Uploads</option>
+                  <option value="2">2 Uploads</option>
+                  <option value="1">1 Upload</option>
                 </select>
                 <button id="variant-oos-confirm-revert" class="confirm-revert-button" disabled>Confirm Revert</button>
               </div>
@@ -1404,16 +1444,16 @@
                 <p class="modal-note">This action will <strong>permanently</strong> revert the selected number of recent Variant Delays uploads. This cannot be undone.</p>
                 <select id="variant-delays-revert-select" class="revert-select">
                   <option value="" disabled selected>Select number of uploads to revert</option>
-                  <option value="1">1 Upload</option>
-                  <option value="2">2 Uploads</option>
-                  <option value="3">3 Uploads</option>
-                  <option value="4">4 Uploads</option>
-                  <option value="5">5 Uploads</option>
-                  <option value="6">6 Uploads</option>
-                  <option value="7">7 Uploads</option>
-                  <option value="8">8 Uploads</option>
-                  <option value="9">9 Uploads</option>
                   <option value="10">10 Uploads</option>
+                  <option value="9">9 Uploads</option>
+                  <option value="8">8 Uploads</option>
+                  <option value="7">7 Uploads</option>
+                  <option value="6">6 Uploads</option>
+                  <option value="5">5 Uploads</option>
+                  <option value="4">4 Uploads</option>
+                  <option value="3">3 Uploads</option>
+                  <option value="2">2 Uploads</option>
+                  <option value="1">1 Upload</option>
                 </select>
                 <button id="variant-delays-confirm-revert" class="confirm-revert-button" disabled>Confirm Revert</button>
               </div>
@@ -1449,11 +1489,80 @@
       setTimeout(initializeVariantOosUpload, 100);
     }
 
+    // Load Cutoff Section
+    function loadCutoffSection() {
+      contentArea.innerHTML = `
+        <div class="upload-container cutoff-upload-container">
+          <h2>Cutoff Upload</h2>
+          <p class="upload-note cutoff-upload-note">Upload the cutoff sheet in CSV or Excel (.csv, .xls, or .xlsx) format.</p>
+          
+          <form class="upload-form cutoff-upload-form" id="cutoff-upload-form" enctype="multipart/form-data">
+            <div class="form-group">
+              <label>Upload a Cutoff Sheet</label>
+              <div class="drag-drop-area" id="cutoff-drag-drop-area">
+                <p>Drag and drop your CSV or Excel file here or click to select<br><small>Only .csv, .xls, .xlsx files accepted (Max 10MB)</small></p>
+                <input type="file" id="cutoff-file-input" name="file" accept=".csv,.xls,.xlsx" required>
+                <div class="file-info"></div>
+              </div>
+            </div>
+            <button type="submit" class="upload-button" id="cutoff-upload-button" disabled>Upload Cutoffs</button>
+            <div class="progress-bar" id="cutoff-progress-bar">
+              <div id="cutoff-progress"></div>
+            </div>
+            <div class="message" id="cutoff-message">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="success-icon" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="error-icon" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span id="cutoff-message-text"></span>
+            </div>
+          </form>
+
+          <button id="cutoff-revert-last-uploads" class="revert-button">⚠️ Revert Last Uploads</button>
+
+          <div class="upload-actions">
+            <div class="download-info">
+              <p>Download the sample <a href="#" class="download-link" id="cutoff-download-sample-link">Cutoff.zip</a> file to get the correct format</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="cutoff-revert-popup" class="modal-overlay">
+          <div class="modal-content">
+            <button id="cutoff-close-revert-popup" class="close-button" aria-label="Close popup">&times;</button>
+            <div class="revert-popup-content">
+              <h3>⚠️ Revert Last Uploads</h3>
+              <p class="modal-note">This action will <strong>permanently</strong> revert the selected number of recent uploads. This cannot be undone.</p>
+              <select id="cutoff-revert-select" class="revert-select">
+                <option value="" disabled selected>Select number of uploads to revert</option>
+                <option value="10">10 Uploads</option>
+                <option value="9">9 Uploads</option>
+                <option value="8">8 Uploads</option>
+                <option value="7">7 Uploads</option>
+                <option value="6">6 Uploads</option>
+                <option value="5">5 Uploads</option>
+                <option value="4">4 Uploads</option>
+                <option value="3">3 Uploads</option>
+                <option value="2">2 Uploads</option>
+                <option value="1">1 Upload</option>
+              </select>
+              <button id="cutoff-confirm-revert" class="confirm-revert-button" disabled>Confirm Revert</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      setTimeout(initializeCutoffUpload, 100);
+    }
+
     // Cleanup previous modals
     const existingPopups = [
       'holiday-revert-popup',
       'variant-oos-revert-popup',
-      'variant-delays-revert-popup'
+      'variant-delays-revert-popup',
+      'cutoff-revert-popup'
     ];
     existingPopups.forEach(popupId => {
       const popup = document.getElementById(popupId);
@@ -1472,7 +1581,7 @@
     }
 
     // Initial load
-    loadVariantSection();
+    loadCutoffSection();
   });
   </script>
 </body>
